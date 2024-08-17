@@ -65,6 +65,11 @@ euclideanDistances = [[] for _ in range(clusters)]
 lowerEuclideanDistances = []
     
 for i in range(iterations):
+    
+    for j in range(clusters):
+        euclideanDistances[j].clear()
+    lowerEuclideanDistances.clear()
+    
     for idx, centroid in enumerate(centroids):
         valuesCentroid = (centroid[1], centroid[2])
         for k in range(numSamples):
@@ -91,11 +96,7 @@ for i in range(iterations):
     
         centroidName = 'C'+ f'{j}'
         centroids.append((centroidName, meanA1, meanA2))
-    
-    if (i + 1) != iterations:
-        for j in range(clusters):
-            euclideanDistances[j].clear()
-        lowerEuclideanDistances.clear()
+        
 
 resultDataframe = pd.DataFrame({
     'sample_label': dataframe['Sample'],
