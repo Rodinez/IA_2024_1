@@ -1,8 +1,10 @@
 import pandas as pd
 import argparse
 from scipy.spatial.distance import euclidean
+import os
 
 parser = argparse.ArgumentParser()
+parser.add_argument('dataset', type=str)
 parser.add_argument('clusters', type=int)
 parser.add_argument('iterations', type=int)
 args = parser.parse_args()
@@ -10,6 +12,7 @@ args = parser.parse_args()
 args_dict = vars(args)
 clusters = args_dict['clusters']
 iterations = args_dict['iterations']
+dataset = args_dict['dataset']
 
 try:
     if clusters <= 0:
@@ -23,13 +26,19 @@ try:
 except ValueError as e:
     print(e)
     exit(1)
+try:
+    if os.path.exists('../dados_e_planilha/datasets/' + dataset):
+        pass
+except Exception as e:
+    print(e)
+    exit
 
-dataframe = pd.read_csv('../dados_e_planilha/datasets/c2ds1-2sp.txt', sep='\t', header=None, names=['Sample', 'A1', 'A2'], skiprows=1)
+dataframe = pd.read_csv(f'../dados_e_planilha/datasets/{dataset}', sep='\t', header=None, names=['Sample', 'A1', 'A2'], skiprows=1)
 numSamples = dataframe.shape[0]
 
 try:
     if clusters > numSamples:
-        raise ValueError(f"There are more clusters than samples, the number of clusters must be equal or lower than {numSamples}")
+        raise ValueError(f'There are more clusters than samples, the number of clusters must be equal or lower than {numSamples}')
 except ValueError as e:
     print(e)
     exit(1)
@@ -93,4 +102,4 @@ resultDataframe = pd.DataFrame({
     'centroid_index': lowerEuclideanDistances
 })
 
-resultDataframe.to_csv("../out/k_medias_c2ds1-2sp.clu", sep=' ', index=False, header=False)              
+resultDataframe.to_csv(f'../out/k_medias_{dataset}.clu', sep=' ', index=False, header=False)              

@@ -3,14 +3,16 @@
 ## Requirements
 Python 
 ### Libraries
-pandas
-argparse
-spicy
+- argparse
+- os
+- pandas
+- spicy
 
 ## How to run k_medias?
-python ./k_medias.py arg1 arg2 or py ./k_medias.py arg1 arg2
+python ./k_medias.py arg1 arg2 arg3 or py ./k_medias.py arg1 arg2 arg3
 
-- arg1 -> number of clusters
-- arg2 -> number of iterations
+- arg1 -> dataset that must be used
+- arg2 -> number of clusters
+- arg3 -> number of iterations
 
 the results will be at \out
