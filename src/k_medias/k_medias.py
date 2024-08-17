@@ -27,11 +27,11 @@ except ValueError as e:
     print(e)
     exit(1)
 try:
-    if os.path.exists('../dados_e_planilha/datasets/' + dataset):
-        pass
-except Exception as e:
+    if not os.path.exists(f'../dados_e_planilha/datasets/{dataset}'):
+        raise FileNotFoundError(f'No such file named {dataset}, it must be a txt file (do not forget the extension)')
+except FileNotFoundError as e:
     print(e)
-    exit
+    exit(1) 
 
 dataframe = pd.read_csv(f'../dados_e_planilha/datasets/{dataset}', sep='\t', header=None, names=['Sample', 'A1', 'A2'], skiprows=1)
 numSamples = dataframe.shape[0]
@@ -102,4 +102,5 @@ resultDataframe = pd.DataFrame({
     'centroid_index': lowerEuclideanDistances
 })
 
-resultDataframe.to_csv(f'../out/k_medias_{dataset}.clu', sep=' ', index=False, header=False)              
+outputFile = dataset[:-3] + 'clu'
+resultDataframe.to_csv(f'../out/k_medias_{outputFile}', sep=' ', index=False, header=False)              
