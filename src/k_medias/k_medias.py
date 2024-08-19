@@ -1,7 +1,12 @@
 import pandas as pd
+import numpy as np
 import argparse
-from scipy.spatial.distance import euclidean
 import os
+
+def euclidean(u, v):
+    u = np.asarray(u)
+    v = np.asarray(v)
+    return np.sqrt(np.sum(np.square(u - v)))
 
 parser = argparse.ArgumentParser()
 parser.add_argument('dataset', type=str)

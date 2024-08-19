@@ -34,3 +34,14 @@ try:
 except ValueError as e:
     print(e)
     exit(1)
+    
+euclideanDistances = [[] for _ in range(numSamples)]
+
+for i in range(numSamples):
+    valuesSample = (dataframe.loc[i]['A1'], dataframe.loc[i]['A2'])
+    for j in range(numSamples):
+        valuesComparativeSample = (dataframe.loc[j]['A1'], dataframe.loc[j]['A2'])
+        distance = euclidean(valuesSample, valuesComparativeSample)
+        euclideanDistances[i][j] = distance
+        euclideanDistances[j][i] = distance
+
