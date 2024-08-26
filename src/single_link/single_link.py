@@ -13,23 +13,25 @@ def atualiza_distancias(dataframe, distancias, juntar_cluster):
     np.fill_diagonal(distancias, np.inf)
     return (distancias)
 
-
 # essa função simula uma entrada no sistema, usa ela para o Google Colab
 dataset = 'c2ds1-2sp.txt'
-n_clusters = '1'
-sys.argv = ['script.py', dataset, n_clusters]
+k_min = '2'
+k_max = '5'
+sys.argv = ['script.py', dataset, k_min, k_max]
 
 parser = argparse.ArgumentParser()
 parser.add_argument('dataset', type=str)
-parser.add_argument('clusters', type=int)
+parser.add_argument('k_min', type=int)
+parser.add_argument('k_max', type=int)
 args = parser.parse_args()
 
 args_dict = vars(args)
-clusters = args_dict['clusters']
+k_min = args_dict['k_min']
+k_max = args_dict['k_max']
 dataset = args_dict['dataset']
 
 try:
-    if clusters <= 0:
+    if (k_min <= 0) or (k_max <=0):
         raise ValueError("The parameter 'clusters' must be a numeric value greater than 0")
 except ValueError as e:
     print(e)
@@ -51,14 +53,17 @@ dataframe = pd.read_csv(
 numSamples = dataframe.shape[0]
 
 try:
-    if clusters > numSamples:
+    if k_max > numSamples:
         raise ValueError(
             f'There are more clusters than samples, the number of clusters must be equal or lower than {numSamples}')
 except ValueError as e:
     print(e)
     exit(1)
 
-numero_clusters_min = args.clusters  # este numero varia dentro de um espectro
+#cria diretorio que contem saida dos arquivos
+!mkdir out2
+
+numero_clusters_min = args.k_min  # este numero varia dentro de um espectro
 
 # converte o dataframe para um vetor de pontos 2D numpy
 lista_pontos_a = dataframe[['A1', 'A2']]  # pega os pontos das colunas A1 e A2 apenas
@@ -121,6 +126,10 @@ for nivel, particao in enumerate(matriz_particoes):
 
 # Salva cada DataFrame como um arquivo CSV
 for i, df in enumerate(dataframe_list):
-    outputFile = dataset[:-3] + f'-nivel_{i}.clu'
-    df.to_csv(f'out/{outputFile}', sep=' ', index=False, header=False)
-    outputFile_list.append(outputFile)
+    if((1000-i)>=k_min and (1000-i)<=k_max):
+      outputFile = dataset[:-3] + f'-nivel_{1000-i}.clu'
+      df.to_csv(f'out2/{outputFile}', sep=' ', index=False, header=False)
+      outputFile_list.append(outputFile)
+
+#para remover o diretório out2
+#!rm -r out2
