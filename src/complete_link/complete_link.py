@@ -128,7 +128,7 @@ for nivel, particao in enumerate(matriz_particoes):
 # Salva cada DataFrame como um arquivo CSV
 for i, df in enumerate(dataframe_list):
     if((1000-i)>=k_min and (1000-i)<=k_max):
-      outputFile = dataset[:-3] + f'-nivel_{1000-i}.clu'
+      outputFile = dataset[:-4] + f'-nivel_{1000-i}.clu'
       df.to_csv(f'out3/{outputFile}', sep=' ', index=False, header=False)
       outputFile_list.append(outputFile)
 
