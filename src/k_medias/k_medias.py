@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import argparse
 import os
 
@@ -7,6 +8,29 @@ def euclidean(u, v):
     u = np.asarray(u)
     v = np.asarray(v)
     return np.sqrt(np.sum(np.square(u - v)))
+
+def plot_dataset(dataframe, clusters, suptitle=None):
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.scatter(dataframe['A1'], dataframe['A2'], s=10, c=colorize(clusters))
+    ax.set_title('{0} - {1} clusters'.format('Dataset', len(np.unique(clusters))))
+    ax.tick_params(which='both', bottom=False, left=False, labelbottom=False, labelleft=False)
+    if suptitle is not None:
+        fig.suptitle(suptitle, fontsize=16)
+    
+    plt.show()
+
+def colorize(clusters):
+    color_palette = ['#910101', '#036CD7', '#078F8F', '#000000', '#FDFD6F', '#B16FFD', '#22FF25',
+                     '#074752', '#8F4A00', '#FE6FB5', '#6BB6FE', '#DF6B00', '#48018D', '#FCB5DA']
+    labels = np.unique(clusters)
+    if len(labels) > len(color_palette):
+        color_palette += ["#%06x" % c for c in np.random.randint(0, 0xFFFFFF, len(labels)-len(color_palette))]
+    
+    color_array = np.empty(clusters.shape, dtype=object)
+    for label, color in zip(labels, color_palette):
+        color_array[np.where(clusters == label)] = color
+    
+    return color_array
 
 parser = argparse.ArgumentParser()
 parser.add_argument('dataset', type=str)
@@ -96,17 +120,23 @@ for i in range(iterations):
                 meanA1 += dataframe.loc[k]['A1']
                 meanA2 += dataframe.loc[k]['A2']
         
-        meanA1 /= counter
-        meanA2 /= counter
-    
-        centroidName = 'C'+ f'{j}'
-        centroids.append((centroidName, meanA1, meanA2))
+        if counter == 0:
+            centroidName = 'C'+ f'{j}'
+            centroids.append((centroidName, meanA1, meanA2))
+        else:
+            meanA1 /= counter
+            meanA2 /= counter
+        
+            centroidName = 'C'+ f'{j}'
+            centroids.append((centroidName, meanA1, meanA2))
         
 
 resultDataframe = pd.DataFrame({
     'sample_label': dataframe['Sample'],
     'centroid_index': lowerEuclideanDistances
 })
+
+plot_dataset(dataframe, np.array(resultDataframe['centroid_index']), suptitle="k_médias")
 
 outputFile = dataset[:-3] + 'clu'
 resultDataframe.to_csv(f'../out/k_medias_{outputFile}', sep=' ', index=False, header=False)              

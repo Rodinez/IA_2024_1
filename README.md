@@ -3,10 +3,11 @@
 ## Requirements
 Python 
 ### Libraries
+- matplotlib
+- pandas
+- numpy
 - argparse
 - os
-- pandas
-- spicy
 
 ## How to run k_medias?
 ```bash
