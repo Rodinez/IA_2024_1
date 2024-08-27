@@ -1,12 +1,19 @@
 import pandas as pd
 import numpy as np
 import argparse
-import os
+#import os
+import sys
 
 def euclidean(u, v):
     u = np.asarray(u)
     v = np.asarray(v)
     return np.sqrt(np.sum(np.square(u - v)))
+
+#simulando os argumentos do cmd
+dataset = 'c2ds3-2g.txt'
+n_clusters = '2'
+n_loop = '20'
+sys.argv = ['script.py',dataset, n_clusters, n_loop]
 
 parser = argparse.ArgumentParser()
 parser.add_argument('dataset', type=str)
@@ -18,6 +25,10 @@ args_dict = vars(args)
 clusters = args_dict['clusters']
 iterations = args_dict['iterations']
 dataset = args_dict['dataset']
+
+print(f'Dataset: {dataset}')
+print(f'Clusters: {clusters}')
+print(f'Iterations: {iterations}')
 
 try:
     if clusters <= 0:
@@ -31,14 +42,14 @@ try:
 except ValueError as e:
     print(e)
     exit(1)
-try:
-    if not os.path.exists(f'../dados_e_planilha/datasets/{dataset}'):
-        raise FileNotFoundError(f'No such file named {dataset}, it must be a txt file (do not forget the extension)')
-except FileNotFoundError as e:
-    print(e)
-    exit(1) 
+# try:
+#     if not os.path.exists(f'../dados_e_planilha/datasets/{dataset}'):
+#         raise FileNotFoundError(f'No such file named {dataset}, it must be a txt file (do not forget the extension)')
+# except FileNotFoundError as e:
+#     print(e)
+#     exit(1)
 
-dataframe = pd.read_csv(f'../dados_e_planilha/datasets/{dataset}', sep='\t', header=None, names=['Sample', 'A1', 'A2'], skiprows=1)
+dataframe = pd.read_csv(f'https://raw.githubusercontent.com/Rodinez/IA_2024_1/main/src/dados_e_planilha/datasets/{dataset}', sep='\t', header=None, names=['Sample', 'A1', 'A2'], skiprows=1)
 numSamples = dataframe.shape[0]
 
 try:
@@ -48,44 +59,48 @@ except ValueError as e:
     print(e)
     exit(1)
 
+
+#cria diretorio que contem saida dos arquivos
+!mkdir out
+
 centroids = []
 numSamplesPerInitialCentroid = numSamples // clusters
 
 for i in range(clusters):
     meanA1 = 0
     meanA2 = 0
-    
+
     for j in range(numSamplesPerInitialCentroid):
         index = i * numSamplesPerInitialCentroid + j
         meanA1 += dataframe.loc[index]['A1']
         meanA2 += dataframe.loc[index]['A2']
-    
+
     meanA1 /= numSamplesPerInitialCentroid
     meanA2 /= numSamplesPerInitialCentroid
-    
+
     centroidName = 'C'+ f'{i}'
     centroids.append((centroidName, meanA1, meanA2))
-    
+
 euclideanDistances = [[] for _ in range(clusters)]
 lowerEuclideanDistances = []
-    
+
 for i in range(iterations):
-    
+
     for j in range(clusters):
         euclideanDistances[j].clear()
     lowerEuclideanDistances.clear()
-    
+
     for idx, centroid in enumerate(centroids):
         valuesCentroid = (centroid[1], centroid[2])
         for k in range(numSamples):
             valuesSample = (dataframe.loc[k]['A1'], dataframe.loc[k]['A2'])
             distance = euclidean(valuesCentroid, valuesSample)
             euclideanDistances[idx].append(distance)
-    
+
     for j in range(numSamples):
         lowerDistancesToCentroids = min(range(clusters), key=lambda i: euclideanDistances[i][j])
         lowerEuclideanDistances.append(lowerDistancesToCentroids)
-    
+
     centroids.clear()
     for j in range(clusters):
         meanA1 = 0
@@ -95,18 +110,21 @@ for i in range(iterations):
             if lowerEuclideanDistances[k] == j:
                 meanA1 += dataframe.loc[k]['A1']
                 meanA2 += dataframe.loc[k]['A2']
-        
+
         meanA1 /= counter
         meanA2 /= counter
-    
+
         centroidName = 'C'+ f'{j}'
         centroids.append((centroidName, meanA1, meanA2))
-        
+
 
 resultDataframe = pd.DataFrame({
     'sample_label': dataframe['Sample'],
     'centroid_index': lowerEuclideanDistances
 })
 
-outputFile = dataset[:-3] + 'clu'
-resultDataframe.to_csv(f'../out/k_medias_{outputFile}', sep=' ', index=False, header=False)              
+outputFile = dataset[:-4] +f'-nivel_{n_clusters}.clu'
+resultDataframe.to_csv(f'out/{outputFile}', sep=' ', index=False, header=False)
+
+#para remover o diretório out
+#!rm -r out
