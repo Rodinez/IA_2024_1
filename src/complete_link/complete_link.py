@@ -15,7 +15,8 @@ def atualiza_distancias(dataframe, distancias, juntar_cluster):
 
 
 # essa função simula uma entrada no sistema, usa ela para o Google Colab
-dataset = 'c2ds1-2sp.txt'
+#mamaco 5-12, resto 2-5
+dataset = 'c2ds3-2g.txt'
 k_min = '2'
 k_max = '5'
 sys.argv = ['script.py', dataset, k_min, k_max]
